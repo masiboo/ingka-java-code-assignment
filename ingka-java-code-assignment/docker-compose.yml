@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_DB: quarkus_test
+      POSTGRES_USER: quarkus_test
+      POSTGRES_PASSWORD: quarkus_test
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quarkus_test -d quarkus_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: java-code-assignment
+    ports:
+      - "8080:8080"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/quarkus_test
+      QUARKUS_DATASOURCE_USERNAME: quarkus_test
+      QUARKUS_DATASOURCE_PASSWORD: quarkus_test
+    depends_on:
+      postgres:
+        condition: service_healthy
